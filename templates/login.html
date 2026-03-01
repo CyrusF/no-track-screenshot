@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - Screenshot to HTML</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="center-card">
+        <h1>Screenshot to HTML</h1>
+        <p class="subtitle">请输入访问密码</p>
+        {{if .Error}}<div class="error">{{.Error}}</div>{{end}}
+        <form method="POST" action="/login">
+            <input type="password" name="password" placeholder="访问密码" required autofocus>
+            <button type="submit">登录</button>
+        </form>
+    </div>
+</body>
+</html>

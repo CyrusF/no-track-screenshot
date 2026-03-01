@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传截图 - Screenshot to HTML</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="center-card upload-card">
+        <h1>Screenshot to HTML</h1>
+        <p class="subtitle">上传截图，AI 将生成对应的 HTML 页面</p>
+        <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+            <input type="file" name="image" accept="image/*" required id="fileInput" style="display:none">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📷</div>
+                <p>拖拽图片到此处，或点击选择文件</p>
+            </div>
+            <div class="file-name" id="fileName"></div>
+            <div class="otp-field">
+                <label for="task_password">任务独立密码（可选）</label>
+                <input type="text" name="task_password" id="task_password" placeholder="留空则仅使用全局密码访问">
+            </div>
+            <button type="submit" id="submitBtn">开始生成</button>
+        </form>
+    </div>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+
+        function setFile(file) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+            fileName.textContent = file.name;
+            dropZone.classList.add('has-file');
+        }
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                setFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                fileName.textContent = fileInput.files[0].name;
+                dropZone.classList.add('has-file');
+            }
+        });
+    </script>
+</body>
+</html>

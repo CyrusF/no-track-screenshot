@@ -1,0 +1,158 @@
+:root {
+    --bg: #f5f5f7;
+    --card-bg: #ffffff;
+    --text: #1d1d1f;
+    --text-secondary: #86868b;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --error: #d32f2f;
+    --border: #d2d2d7;
+    --radius: 12px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.center-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.upload-card {
+    max-width: 480px;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.error {
+    background: #fdecea;
+    color: var(--error);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--card-bg);
+}
+
+input[type="password"]:focus,
+input[type="text"]:focus {
+    border-color: var(--accent);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 12px;
+}
+
+button:hover {
+    background: var(--accent-hover);
+}
+
+/* Upload page */
+
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.drop-zone.has-file {
+    border-color: var(--accent);
+    background: #f0f5ff;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--accent);
+    background: #f0f5ff;
+}
+
+.drop-zone-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+
+.drop-zone p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-name {
+    font-size: 13px;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 8px;
+    min-height: 20px;
+}
+
+.otp-field {
+    margin-top: 20px;
+}
+
+.otp-field label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}

@@ -71,6 +71,26 @@ func (db *DB) GetTask(id string) (*Task, error) {
 	return &t, nil
 }
 
+func (db *DB) ListTasks() ([]*Task, error) {
+	rows, err := db.conn.Query(
+		`SELECT id, status, error, created_at FROM tasks ORDER BY created_at DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []*Task
+	for rows.Next() {
+		var t Task
+		if err := rows.Scan(&t.ID, &t.Status, &t.Error, &t.CreatedAt); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, &t)
+	}
+	return tasks, rows.Err()
+}
+
 func (db *DB) UpdateTaskResult(id string, status TaskStatus, html string, errMsg string) error {
 	_, err := db.conn.Exec(
 		`UPDATE tasks SET status = ?, html = ?, error = ?, updated_at = ? WHERE id = ?`,

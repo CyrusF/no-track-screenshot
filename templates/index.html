@@ -3,31 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>上传截图 - Screenshot to HTML</title>
+    <title>Screenshot to HTML</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--bg);
+            padding: 24px 16px;
+            box-sizing: border-box;
+        }
+
+        .layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            width: 100%;
+            max-width: 680px;
+            height: 80vh;
+        }
+
+        /* 左栏：上传主体 */
+        .pane-upload {
+            flex: 1;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .pane-upload h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        .pane-upload .subtitle {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        /* 右栏：历史列表，高度与 layout 一致，内部滚动 */
+        .pane-history {
+            flex: 0 0 120px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .task-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 6px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .task-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(0,113,227,0.1);
+        }
+
+        .task-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 5px;
+            object-fit: cover;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: block;
+        }
+
+        .task-thumb-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 5px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+
+        .task-meta {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .task-badge {
+            font-size: 10px;
+            font-weight: 500;
+            padding: 1px 6px;
+            border-radius: 20px;
+        }
+
+        .badge-done       { background: #e6f4ea; color: #2e7d32; }
+        .badge-pending,
+        .badge-processing { background: #fff8e1; color: #e65100; }
+        .badge-failed     { background: #fdecea; color: #c62828; }
+
+        .empty-history {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 12px 4px;
+            line-height: 1.5;
+        }
+
+        /* 手机：右侧只显示缩略图，隐藏文字 */
+        @media (max-width: 540px) {
+            .layout {
+                gap: 10px;
+            }
+            .pane-history {
+                flex: 0 0 52px;
+            }
+            .task-item {
+                padding: 4px;
+            }
+            .task-thumb, .task-thumb-placeholder {
+                width: 40px;
+                height: 40px;
+            }
+            .task-meta,
+            .task-badge {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="center-card upload-card">
-        <h1>Screenshot to HTML</h1>
-        <p class="subtitle">上传截图，AI 将生成对应的 HTML 页面</p>
-        <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
-            <input type="file" name="image" accept="image/*" required id="fileInput" style="display:none">
-            <div class="drop-zone" id="dropZone">
-                <div class="drop-zone-icon">📷</div>
-                <p>拖拽图片到此处，或点击选择文件</p>
+    <div class="layout">
+        <!-- 左栏：上传主体 -->
+        <div class="pane-upload">
+            <h1>Screenshot to HTML</h1>
+            <p class="subtitle">上传截图，AI 将生成对应的 HTML 页面</p>
+            <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+                <input type="file" name="image" accept="image/*" required id="fileInput" style="display:none">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">📷</div>
+                    <p>拖拽图片到此处，或点击选择文件</p>
+                </div>
+                <div class="file-name" id="fileName"></div>
+                <div class="otp-field">
+                    <label for="task_password">任务独立密码（可选）</label>
+                    <input type="text" name="task_password" id="task_password" placeholder="留空则仅使用全局密码访问">
+                </div>
+                <button type="submit">开始生成</button>
+            </form>
+        </div>
+
+        <!-- 右栏：历史任务，无任务时隐藏 -->
+        {{if .Tasks}}
+        <div class="pane-history">
+            <div class="task-list">
+                {{range .Tasks}}
+                <a class="task-item" href="/task/{{.ID}}" title="{{.ID}}">
+                    <img class="task-thumb" src="/task/{{.ID}}/preview" alt="preview"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                    <div class="task-thumb-placeholder" style="display:none"></div>
+                    <div class="task-meta">{{.CreatedAt.Format "01-02 15:04"}}</div>
+                    <span class="task-badge badge-{{.Status}}">{{.Status}}</span>
+                </a>
+                {{end}}
             </div>
-            <div class="file-name" id="fileName"></div>
-            <div class="otp-field">
-                <label for="task_password">任务独立密码（可选）</label>
-                <input type="text" name="task_password" id="task_password" placeholder="留空则仅使用全局密码访问">
-            </div>
-            <button type="submit" id="submitBtn">开始生成</button>
-        </form>
+        </div>
+        {{end}}
     </div>
+
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
-        const fileName = document.getElementById('fileName');
+        const fileName  = document.getElementById('fileName');
 
         function setFile(file) {
             const dt = new DataTransfer();
@@ -38,24 +206,13 @@
         }
 
         dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
-            if (e.dataTransfer.files.length) {
-                setFile(e.dataTransfer.files[0]);
-            }
+            if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
         });
-
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length) {
                 fileName.textContent = fileInput.files[0].name;

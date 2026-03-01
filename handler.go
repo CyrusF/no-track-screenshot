@@ -113,7 +113,14 @@ func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
 		h.templates.ExecuteTemplate(w, "login.html", nil)
 		return
 	}
-	h.templates.ExecuteTemplate(w, "index.html", nil)
+	tasks, err := h.db.ListTasks()
+	if err != nil {
+		log.Printf("list tasks: %v", err)
+		tasks = nil
+	}
+	h.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{
+		"Tasks": tasks,
+	})
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {

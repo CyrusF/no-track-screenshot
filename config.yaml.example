@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+password: "changeme"
+
+ai:
+  endpoint: "https://api.openai.com/v1/chat/completions"
+  key: "sk-your-api-key-here"
+  model: "gpt-4o"
+  mock: true

@@ -55,9 +55,19 @@ type chatResponse struct {
 			Content string `json:"content"`
 		} `json:"message"`
 	} `json:"choices"`
+	Usage *struct {
+		PromptTokens     int `json:"prompt_tokens"`
+		CompletionTokens int `json:"completion_tokens"`
+	} `json:"usage,omitempty"`
 	Error *struct {
 		Message string `json:"message"`
 	} `json:"error,omitempty"`
+}
+
+type GenerateResult struct {
+	HTML         string
+	InputTokens  int
+	OutputTokens int
 }
 
 const mockHTML = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:40px auto;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden">
@@ -78,10 +88,10 @@ const mockHTML = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Sego
 </div>
 </div>`
 
-func (c *AIClient) GenerateHTML(imageBase64 string, mimeType string, prompt string) (string, error) {
+func (c *AIClient) GenerateHTML(imageBase64 string, mimeType string, prompt string) (*GenerateResult, error) {
 	if c.Mock {
 		time.Sleep(2 * time.Second)
-		return mockHTML, nil
+		return &GenerateResult{HTML: mockHTML}, nil
 	}
 
 	dataURL := fmt.Sprintf("data:%s;base64,%s", mimeType, imageBase64)
@@ -101,41 +111,48 @@ func (c *AIClient) GenerateHTML(imageBase64 string, mimeType string, prompt stri
 
 	body, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("marshal request: %w", err)
+		return nil, fmt.Errorf("marshal request: %w", err)
 	}
 
 	req, err := http.NewRequest("POST", c.Endpoint, bytes.NewReader(body))
 	if err != nil {
-		return "", fmt.Errorf("create request: %w", err)
+		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.Key)
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("send request: %w", err)
+		return nil, fmt.Errorf("send request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("read response: %w", err)
+		return nil, fmt.Errorf("read response: %w", err)
 	}
 
 	var chatResp chatResponse
 	if err := json.Unmarshal(respBody, &chatResp); err != nil {
-		return "", fmt.Errorf("unmarshal response: %w", err)
+		return nil, fmt.Errorf("unmarshal response: %w", err)
 	}
 
 	if chatResp.Error != nil {
-		return "", fmt.Errorf("API error: %s", chatResp.Error.Message)
+		return nil, fmt.Errorf("API error: %s", chatResp.Error.Message)
 	}
 
 	if len(chatResp.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response")
+		return nil, fmt.Errorf("no choices in response")
 	}
 
-	return extractHTML(chatResp.Choices[0].Message.Content), nil
+	result := &GenerateResult{
+		HTML: extractHTML(chatResp.Choices[0].Message.Content),
+	}
+	if chatResp.Usage != nil {
+		result.InputTokens = chatResp.Usage.PromptTokens
+		result.OutputTokens = chatResp.Usage.CompletionTokens
+	}
+	return result, nil
 }
 
 var htmlFenceRe = regexp.MustCompile("(?s)```(?:html)?\\s*\n(.*?)```")

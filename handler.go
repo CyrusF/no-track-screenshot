@@ -190,17 +190,17 @@ func (h *Handler) handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) processTask(taskID, imgBase64, mimeType string) {
-	h.db.UpdateTaskResult(taskID, StatusProcessing, "", "")
+	h.db.UpdateTaskResult(taskID, StatusProcessing, "", "", 0, 0)
 
-	html, err := h.ai.GenerateHTML(imgBase64, mimeType, h.prompt)
+	result, err := h.ai.GenerateHTML(imgBase64, mimeType, h.prompt)
 	if err != nil {
 		log.Printf("task %s AI error: %v", taskID, err)
-		h.db.UpdateTaskResult(taskID, StatusFailed, "", err.Error())
+		h.db.UpdateTaskResult(taskID, StatusFailed, "", err.Error(), 0, 0)
 		return
 	}
 
-	h.db.UpdateTaskResult(taskID, StatusDone, html, "")
-	log.Printf("task %s completed", taskID)
+	h.db.UpdateTaskResult(taskID, StatusDone, result.HTML, "", result.InputTokens, result.OutputTokens)
+	log.Printf("task %s completed (in=%d out=%d)", taskID, result.InputTokens, result.OutputTokens)
 }
 
 func (h *Handler) handleTask(w http.ResponseWriter, r *http.Request) {

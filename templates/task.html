@@ -68,6 +68,15 @@
             object-fit: cover;
             border: 1px solid rgba(255,255,255,0.15);
         }
+        .token-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.3;
+        }
 
         /* 内容区留出顶部导航条高度 */
         body {
@@ -143,6 +152,12 @@
         </div>
         <div class="topbar-center">no-track-screenshot</div>
         <div class="topbar-right">
+            {{if or .Task.InputTokens .Task.OutputTokens}}
+            <div class="token-info">
+                <span>↑ {{.Task.InputTokens}}</span>
+                <span>↓ {{.Task.OutputTokens}}</span>
+            </div>
+            {{end}}
             <span>当前任务</span>
             <img src="/task/{{.Task.ID}}/preview" alt="preview" title="原始截图预览">
         </div>

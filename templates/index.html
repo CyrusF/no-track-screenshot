@@ -111,6 +111,14 @@
             line-height: 1.3;
         }
 
+        .task-tokens {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.4;
+            opacity: 0.8;
+        }
+
         .task-badge {
             font-size: 10px;
             font-weight: 500;
@@ -147,7 +155,8 @@
                 height: 40px;
             }
             .task-meta,
-            .task-badge {
+            .task-badge,
+            .task-tokens {
                 display: none;
             }
         }
@@ -185,6 +194,9 @@
                     <div class="task-thumb-placeholder" style="display:none"></div>
                     <div class="task-meta">{{.CreatedAt.Format "01-02 15:04"}}</div>
                     <span class="task-badge badge-{{.Status}}">{{.Status}}</span>
+                    {{if or .InputTokens .OutputTokens}}
+                    <div class="task-tokens">↑{{.InputTokens}} ↓{{.OutputTokens}}</div>
+                    {{end}}
                 </a>
                 {{end}}
             </div>

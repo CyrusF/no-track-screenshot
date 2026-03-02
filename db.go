@@ -33,11 +33,20 @@ func (db *DB) migrate() error {
 			preview BLOB,
 			one_time_password TEXT,
 			error TEXT NOT NULL DEFAULT '',
+			input_tokens INTEGER NOT NULL DEFAULT 0,
+			output_tokens INTEGER NOT NULL DEFAULT 0,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL
 		)
 	`)
-	return err
+	if err != nil {
+		return err
+	}
+	// Add token columns to existing databases that predate this migration.
+	for _, col := range []string{"input_tokens", "output_tokens"} {
+		db.conn.Exec(`ALTER TABLE tasks ADD COLUMN ` + col + ` INTEGER NOT NULL DEFAULT 0`)
+	}
+	return nil
 }
 
 func (db *DB) CreateTask(task *Task) error {
@@ -52,14 +61,14 @@ func (db *DB) CreateTask(task *Task) error {
 
 func (db *DB) GetTask(id string) (*Task, error) {
 	row := db.conn.QueryRow(
-		`SELECT id, status, html, preview, one_time_password, error, created_at, updated_at
+		`SELECT id, status, html, preview, one_time_password, error, input_tokens, output_tokens, created_at, updated_at
 		 FROM tasks WHERE id = ?`, id,
 	)
 	var t Task
 	var pw sql.NullString
 	err := row.Scan(
 		&t.ID, &t.Status, &t.HTML, &t.Preview,
-		&pw, &t.Error,
+		&pw, &t.Error, &t.InputTokens, &t.OutputTokens,
 		&t.CreatedAt, &t.UpdatedAt,
 	)
 	if err != nil {
@@ -73,7 +82,7 @@ func (db *DB) GetTask(id string) (*Task, error) {
 
 func (db *DB) ListTasks() ([]*Task, error) {
 	rows, err := db.conn.Query(
-		`SELECT id, status, error, created_at FROM tasks ORDER BY created_at DESC`,
+		`SELECT id, status, error, input_tokens, output_tokens, created_at FROM tasks ORDER BY created_at DESC`,
 	)
 	if err != nil {
 		return nil, err
@@ -83,7 +92,7 @@ func (db *DB) ListTasks() ([]*Task, error) {
 	var tasks []*Task
 	for rows.Next() {
 		var t Task
-		if err := rows.Scan(&t.ID, &t.Status, &t.Error, &t.CreatedAt); err != nil {
+		if err := rows.Scan(&t.ID, &t.Status, &t.Error, &t.InputTokens, &t.OutputTokens, &t.CreatedAt); err != nil {
 			return nil, err
 		}
 		tasks = append(tasks, &t)
@@ -91,10 +100,10 @@ func (db *DB) ListTasks() ([]*Task, error) {
 	return tasks, rows.Err()
 }
 
-func (db *DB) UpdateTaskResult(id string, status TaskStatus, html string, errMsg string) error {
+func (db *DB) UpdateTaskResult(id string, status TaskStatus, html string, errMsg string, inputTokens, outputTokens int) error {
 	_, err := db.conn.Exec(
-		`UPDATE tasks SET status = ?, html = ?, error = ?, updated_at = ? WHERE id = ?`,
-		status, html, errMsg, time.Now(), id,
+		`UPDATE tasks SET status = ?, html = ?, error = ?, input_tokens = ?, output_tokens = ?, updated_at = ? WHERE id = ?`,
+		status, html, errMsg, inputTokens, outputTokens, time.Now(), id,
 	)
 	return err
 }

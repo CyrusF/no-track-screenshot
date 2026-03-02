@@ -1,4 +1,4 @@
-# 信息重构机
+# 💫 信息重构机
 
 > ~~无内鬼，来点内部消息~~ 🚨 红线警告
 
@@ -8,7 +8,7 @@
 
 单个图片预计 5000 token 消耗，过大、过复杂、无结构化图片会影响任务处理，大家可以针对自己的场景自行优化 prmopt。
 
-# no-track-screenshot
+# 💫 no-track-screenshot
 
 Watermark removal through AI-powered HTML reconstruction.
 

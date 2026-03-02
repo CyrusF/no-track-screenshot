@@ -1,5 +1,11 @@
 # 💫 赛博拍屏
 
+<div align="center">
+<img height="256" alt="image" src="https://github.com/user-attachments/assets/35780373-b460-44c0-be21-8260b76be8a2" />
+<img height="256" alt="image" src="https://github.com/user-attachments/assets/ef529f2e-55f8-486f-95ce-19c3585d648d" />
+<p>
+</div>
+
 > ~~无内鬼，来点内部消息~~ 🚨 红线警告
 
 本项目通过 LLM 分析图片并生成 HTML 渲染，以达到去除可见水印和[盲水印](https://www.volcengine.com/docs/508/124670?lang=zh)的功能。

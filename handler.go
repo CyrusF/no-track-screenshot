@@ -59,6 +59,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /task/{id}/auth", h.handleTaskAuth)
 	mux.HandleFunc("GET /task/{id}/status", h.handleTaskStatus)
 	mux.HandleFunc("GET /task/{id}/preview", h.handleTaskPreview)
+	mux.HandleFunc("GET /task/{id}/html", h.handleTaskHTML)
 }
 
 // --- Auth helpers ---
@@ -221,8 +222,7 @@ func (h *Handler) handleTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Task":    task,
-		"TaskHTML": template.HTML(task.HTML),
+		"Task": task,
 	}
 	h.templates.ExecuteTemplate(w, "task.html", data)
 }
@@ -287,6 +287,33 @@ func (h *Handler) handleTaskPreview(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/jpeg")
 	w.Header().Set("Cache-Control", "public, max-age=86400")
 	w.Write(task.Preview)
+}
+
+func (h *Handler) handleTaskHTML(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	task, err := h.db.GetTask(id)
+	if err == sql.ErrNoRows {
+		http.NotFound(w, r)
+		return
+	}
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	if !h.isGlobalAuthed(r) && !h.isTaskAuthed(r, id) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if string(task.Status) != "done" {
+		http.Error(w, "Not ready", http.StatusNoContent)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+	w.Write([]byte(task.HTML))
 }
 
 func generatePreview(imgData []byte) ([]byte, error) {

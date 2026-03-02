@@ -83,9 +83,11 @@
             padding-top: 44px;
         }
 
-        .html-content {
+        .html-frame {
+            display: block;
             width: 100%;
-            min-height: calc(100vh - 44px);
+            height: calc(100vh - 44px);
+            border: none;
         }
 
         /* 手机：标题换行到第二行 */
@@ -106,7 +108,7 @@
                 padding-bottom: 4px;
             }
             body { padding-top: 72px; }
-            .html-content { min-height: calc(100vh - 72px); }
+            .html-frame { height: calc(100vh - 72px); }
             .status-overlay { top: 72px; }
         }
 
@@ -164,7 +166,10 @@
     </div>
 
     {{if eq (printf "%s" .Task.Status) "done"}}
-        <div class="html-content">{{.TaskHTML}}</div>
+        <iframe class="html-frame"
+                src="/task/{{.Task.ID}}/html"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                title="Generated HTML"></iframe>
     {{else if eq (printf "%s" .Task.Status) "failed"}}
         <div class="status-overlay">
             <div class="status-box">

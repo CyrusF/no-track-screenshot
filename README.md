@@ -1,6 +1,7 @@
 # 💫 赛博拍屏
 
 <div align="center">
+<img height="256" alt="image" src="https://github.com/user-attachments/assets/dceb90f3-9d58-4426-9335-7533efdc1027" />
 <img height="256" alt="image" src="https://github.com/user-attachments/assets/35780373-b460-44c0-be21-8260b76be8a2" />
 <img height="256" alt="image" src="https://github.com/user-attachments/assets/9d035f0b-f4b3-44fa-b093-5b941fe1cf81" />
 

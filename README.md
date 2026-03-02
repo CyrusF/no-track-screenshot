@@ -1,3 +1,13 @@
+# 信息重构机
+
+> ~~无内鬼，来点内部消息~~ 🚨 红线警告
+
+本项目通过 LLM 分析图片并生成 HTML 渲染，以达到去除可见水印和[盲水印](https://www.volcengine.com/docs/508/124670?lang=zh)的功能。
+
+单个图片分享支持独立密码，服务端不保存原图只保留缩略图，以降低服务端被技术接管后的潜在安全风险。
+
+单个图片预计 5000 token 消耗，过大、过复杂、无结构化图片会影响任务处理，大家可以针对自己的场景自行优化 prmopt。
+
 # no-track-screenshot
 
 Watermark removal through AI-powered HTML reconstruction.

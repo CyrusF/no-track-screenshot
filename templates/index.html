@@ -172,7 +172,7 @@
                 <input type="file" name="image" accept="image/*" required id="fileInput" style="display:none">
                 <div class="drop-zone" id="dropZone">
                     <div class="drop-zone-icon">📷</div>
-                    <p>拖拽图片到此处，或点击选择文件</p>
+                    <p>拖拽、粘贴或点击选择图片</p>
                 </div>
                 <div class="file-name" id="fileName"></div>
                 <div class="otp-field">
@@ -229,6 +229,25 @@
             if (fileInput.files.length) {
                 fileName.textContent = fileInput.files[0].name;
                 dropZone.classList.add('has-file');
+            }
+        });
+
+        // 粘贴图片支持（Ctrl+V / Cmd+V，或从剪贴板粘贴截图）
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
+            for (const item of items) {
+                if (item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (file) {
+                        setFile(file);
+                        // 粘贴的图片没有文件名，给一个默认名
+                        if (!file.name || file.name === 'image.png') {
+                            fileName.textContent = '已粘贴图片';
+                        }
+                    }
+                    break;
+                }
             }
         });
     </script>

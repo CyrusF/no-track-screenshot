@@ -66,7 +66,7 @@ go build -o no-track-screenshot .
 
 ## Star History
 
-<a href="https://www.star-history.com/#TheBoredTeam/boring.notch&Timeline">
+<a href="https://www.star-history.com/#CyrusF/no-track-screenshot&Timeline">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=CyrusF/no-track-screenshot&type=Timeline&theme=dark" />
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=CyrusF/no-track-screenshot&type=Timeline" />

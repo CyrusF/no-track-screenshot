@@ -63,3 +63,13 @@ go build -o no-track-screenshot .
 ./no-track-screenshot              # uses config.yaml by default
 ./no-track-screenshot myconfig.yaml
 ```
+
+## Star History
+
+<a href="https://www.star-history.com/#TheBoredTeam/boring.notch&Timeline">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=CyrusF/no-track-screenshot&type=Timeline&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=CyrusF/no-track-screenshot&type=Timeline" />
+   <img alt="Star History" src="https://api.star-history.com/svg?repos=CyrusF/no-track-screenshot&type=Timeline" />
+ </picture>
+</a>

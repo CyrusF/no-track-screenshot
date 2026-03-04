@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -134,14 +135,17 @@ func (c *AIClient) GenerateHTML(imageBase64 string, mimeType string, prompt stri
 
 	var chatResp chatResponse
 	if err := json.Unmarshal(respBody, &chatResp); err != nil {
+		log.Printf("unmarshal failed, status=%d body=%s", resp.StatusCode, string(respBody))
 		return nil, fmt.Errorf("unmarshal response: %w", err)
 	}
 
 	if chatResp.Error != nil {
+		log.Printf("API error response, status=%d body=%s", resp.StatusCode, string(respBody))
 		return nil, fmt.Errorf("API error: %s", chatResp.Error.Message)
 	}
 
 	if len(chatResp.Choices) == 0 {
+		log.Printf("no choices in response, status=%d body=%s", resp.StatusCode, string(respBody))
 		return nil, fmt.Errorf("no choices in response")
 	}
 
